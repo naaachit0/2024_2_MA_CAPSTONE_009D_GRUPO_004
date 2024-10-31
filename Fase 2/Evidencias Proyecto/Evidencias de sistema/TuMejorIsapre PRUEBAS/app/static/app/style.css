@@ -1,0 +1,676 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+
+
+*{
+    margin: 0;
+    padding: 0%;
+    box-sizing: border-box;
+    text-decoration: none;
+    list-style: none;
+}
+
+body {
+    font-family: 'Bebas Neue', cursive;
+}
+
+p {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    background: linear-gradient(
+        180deg,
+        rgb(3, 198, 205) 0%,
+        rgb(4, 158, 193) 51%,
+        rgb(3, 198, 205) 100%);
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+}
+
+.headerr {
+    background: linear-gradient(
+        180deg,
+        rgb(3, 198, 205) 0%,
+        rgb(4, 158, 193) 51%,
+        rgb(3, 54, 106) 100%);
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+}
+
+.headerrr {
+    background: linear-gradient(
+        180deg,
+        rgb(4, 158, 193) 0%,
+        rgb(3, 54, 106) 51%,
+        rgb(3, 198, 205) 100%);
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+}
+
+.menu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo img {
+    width: 40px;
+}
+
+
+.menu .navbar ul li {
+    position: relative;
+    float: left;
+}
+
+.menu .navbar ul li a {
+    font-size: 18px;
+    padding: 40px;
+    color: #ffffff;
+    display: block;
+    font-weight: bold;
+}
+
+.menu .navbar ul li a:hover {
+    color: #9c9c9c;
+}
+
+.socials-1 img {
+    width: 30px;
+    margin-right: 15px;
+}
+
+#menu {
+    display: none;
+}
+
+.menu-icono {
+    width: 25px
+}
+
+.menu label {
+    cursor: pointer;
+    display: none;
+}
+
+.header-content {
+    padding: 100px 0;
+    display: flex;
+    align-items: center;
+}
+
+.header-txt {
+    width: 50%;
+    padding-right: 100px;
+}
+
+.header-txt h1 {
+    font-size: 140px;
+    line-height: 150px;
+    color: #FFFFFF;
+    margin-bottom: 25px;
+}
+
+p {
+    font-size: 18px;
+    color: #000000;
+    margin-bottom: 35px;
+}
+
+.texto {
+    font-size: 18px;
+    color: #ffffff;
+    margin-bottom: 35px;
+    font-family: Arial, sans-serif;
+
+}
+
+.titulo {
+    font-size: 80px;
+    line-height: 90px;
+    color: #ffffff;
+    margin-bottom: 25px;
+}
+
+
+.header-img {
+    width: 50%;
+    text-align: center;
+}
+
+.header-img img {
+    width: 20rem;
+}
+
+.about {
+    padding: 100px 0;
+    background-color: #FFFFFF;
+}
+
+.aboutt {
+    padding: 100px 0;
+    background-color: #03366a;
+}
+
+.abouttt {
+    padding: 100px 0;
+    background-color: #03c6cd;
+}
+
+.about-content {
+    display: flex;
+    position: relative;
+}
+
+.ab1 {
+    position: absolute;
+    width: 50px;
+    left: 0;
+    top: 0;
+    rotate: 220deg;
+}
+
+
+
+.ab3 {
+    position: absolute;
+    width: 150px;
+    right: 0;
+}
+
+.about-img {
+    width: 50%;
+    text-align: center;
+}
+
+
+.about-img img {
+    width: 350px;
+}
+
+.ab4 {
+    width: 90%;
+    text-align: left;
+}
+
+.about-txt {
+    width: 50%;
+    color: #000000;
+}
+
+
+h2 {
+    font-size: 80px;
+    line-height: 90px;
+    color: #2c2c2c;
+    margin-bottom: 25px;
+    font-family: Arial, sans-serif;
+}
+
+h3 {
+    font-size: 20px;
+    line-height: 30px;
+    color: #161616ba;
+    margin-bottom: 25px;
+
+}
+
+.bt2-2 {
+    display: inline-block;
+    padding: 13px 45px;
+    font-size: 18px;
+    background-color: #e56820;
+    color: #FFFFFF;
+    border-radius: 25px;
+    border: 0;
+    font-family: 'Bebas neue', cursive;
+    cursor: pointer;
+}
+
+
+.btn-2:hover {
+    background-color: #f55442;
+}
+
+.information {
+    padding: 100px 400px 400px 400px;
+    text-align: center;
+    background-color: #FFFFFF;
+}
+
+.information-content {
+    position: relative;
+}
+
+
+
+.campo {
+    padding: 17px 35px;
+    background-color: #f7f7f7;
+    border-radius: 25px;
+    margin-right: 15px;
+    border: 1px solid #e8e8e8;
+    outline: none;
+    color: #3f3f3f;
+}
+
+.campo::placeholder {
+    color: #A3A3A3;
+}
+
+
+
+.footer {
+    border-top: 2px solid #e8e8e8;
+    padding: 50px 0 0 0;
+    background-color: #081993;
+    font-family: Arial, sans-serif;
+}
+
+.footer-links {
+    display: flex;
+    justify-content:  space-between;
+    margin-bottom: 15px;
+}
+
+.link-img {
+    text-align: center;
+}
+
+.link-img img {
+    width: 70px;
+    margin-bottom: 10px;
+}
+
+.socials-2 img {
+    width: 30px;
+    margin: 10px;
+}
+
+.link h3 {
+    font-size: 22px;
+    color: #3f3f3f;
+    margin-bottom: 15px;
+}
+
+
+.link a {
+    font-size: 18px;
+    display: block;
+    color: #ffffff;
+    margin: 20px;
+}
+
+.link a:hover {
+    color: #4f4f4f;
+}
+
+.footer-copy {
+    padding: 25px 0;
+    text-align: center;
+    border-top: 1px solid #e8e8e8;
+}
+
+.footer-copy p {
+    color: #ffffff;
+    font-size: 16px;
+    margin: 0;
+}
+
+@media(max-width:991px) {
+    
+    .menu {
+        top: 0;
+        padding: 30px;
+    }
+
+    .menu label {
+        display: initial;
+    }
+
+    .socials-1 {
+        display: none;
+    }
+
+    .menu .navbar {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: #3f3f3f;
+        display: none;
+    }
+
+    .menu .navbar ul li {
+        width: 100%;
+    }
+
+    .menu .navbar ul li a {
+        color: #FFFFFF;
+
+    }
+
+    #menu:checked ~ .navbar {
+        display: initial;
+    }
+
+    .header {
+        min-height: 0vh;
+    }
+
+    .header-content {
+        padding: 130px 30px 80px 30px;
+        flex-direction: column;
+    }
+
+    .header-txt {
+        width: 100%;
+        padding-right: 0;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .header-txt h1 {
+        font-size: 90px;
+        line-height: 100px;
+    }
+
+    .header-img {
+        width: 70%;
+    }
+
+    .header-img img {
+        width: 70%;
+    }
+
+    .about {
+        padding: 30px;
+    }
+
+    .about-content {
+        flex-direction: column;
+    }
+
+    .ab1, .ab2 , .ab3 {
+        display: none;
+    }
+
+    .about-img {
+        width: 70%;
+        order: 2;
+    }
+
+    .about-img img {
+        width: 50%;
+    }
+
+    .about-txt {
+        width: 100%;
+        text-align: center;
+    }
+
+    h2 {
+        font-size: 70px;
+        line-height: 80px;
+    }
+
+    .information {
+        padding: 30px 30px 100px 30px;
+    }
+
+    .in1, .in2 , .in3 {
+        display: none;
+    }
+
+    .contact {
+        padding: 30px;
+    }
+
+    .contact-table {
+        width: 100%;
+        margin-top: -120px;
+    }
+
+   
+
+   
+    .campo {
+        margin-bottom: 20px;
+    }
+
+    .footer {
+        padding: 30px 30px 0 30px;
+    }
+
+    .footer-links {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .link-img {
+        margin-bottom: 15px;
+    }
+
+    
+}
+
+/* Sección del formulario */
+.form-section {
+    background-image: url('images/fondooo.png');
+    background-size: contain; /* Ajusta la imagen para que se vea completa */
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 40px 0;
+    min-height: 500px; /* Puedes ajustar esta altura */
+    background-color: #03c6cd;
+}
+
+/* Contenedor del formulario */
+.form-container {
+    background-color: rgba(255, 255, 255, 0.875); /* Fondo blanco semitransparente */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 0 auto;
+}
+/* Título del formulario */
+.form-container h2 {
+    font-size: 2.5rem;
+    color: #000000;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Estilos de grupo de formulario */
+.form-group {
+    margin-bottom: 20px;
+}
+
+/* Etiquetas del formulario */
+.form-group label {
+    display: block;
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+/* Inputs y select */
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 15px;
+    font-size: 1rem;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+/* Cambios en los inputs al hacer focus */
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #4a90e2;
+    outline: none;
+}
+
+/* Botón de envío */
+button {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2rem;
+    background-color: #4a90e2;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Hover en botón */
+button:hover {
+    background-color: #357abd;
+}
+
+/* Estilos adicionales para mejorar la usabilidad */
+.form-group input::placeholder {
+    color: #aaa;
+}
+
+@media (max-width: 768px) {
+    .form-container {
+        padding: 20px;
+    }
+    
+    .form-container h2 {
+        font-size: 2rem;
+    }
+
+    button {
+        font-size: 1rem;
+    }
+}
+
+.form-container form .form-group textarea,
+.form-container form .form-group input,
+.form-container form .form-group select {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    font-size: 16px;
+
+
+}
+
+/* Estilo general de los enlaces */
+.contact-links {
+    display: flex;
+    flex-direction: column; /* Alinea los enlaces verticalmente */
+    gap: 10px; /* Espacio entre cada enlace */
+}
+
+/* Estilo para el contenedor del logo y texto */
+.logo-text {
+    display: flex;
+    align-items: center; /* Alinea el logo y el texto verticalmente */
+}
+
+.logo-text img {
+    width: 20px; /* Ajusta el tamaño del logo */
+    height: auto;
+    margin-right: 1px; /* Espacio entre el logo y el texto */
+}
+
+/* Estilos para hacer el video-main más compacto y centrado */
+.video-main {
+    display: flex;
+    justify-content: center; /* Alineación horizontal centrada */
+    align-items: center; /* Alineación vertical centrada */
+    margin-top: 20px; /* Margen superior para espacio */
+    gap: 15px; /* Reducir la separación entre los elementos */
+    max-width: 80%; /* Limitar el ancho máximo del contenedor */
+    padding: 20px;
+    margin-left: auto; /* Centrando horizontalmente */
+    margin-right: auto; /* Centrando horizontalmente */
+}
+
+/* Ajustes para los videos dentro del contenedor */
+.video-main video {
+    width: 350px; /* Tamaño de los videos */
+    height: auto;
+    border: 5px solid #08135390; /* Marco azul claro */
+    border-radius: 10px; /* Bordes redondeados */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra sutil */
+}
+
+/* Ajustes para la imagen al lado del video */
+.video-main img {
+    width: 250px; /* Mantener la imagen del mismo tamaño que los videos */
+    height: auto;
+}
+
+/* Estilo para el contenedor del video */
+.video-container {
+    display: flex;
+    justify-content: center; /* Centrado horizontalmente */
+    align-items: center; /* Alineación vertical */
+    flex-wrap: wrap; /* Permite que los videos y la imagen se ajusten en pantallas pequeñas */
+    max-width: 100%; /* Limitar el tamaño del contenedor */
+    margin: 0 auto; /* Centrar el contenedor horizontalmente */
+    padding: 20px;
+    background-color: #f0f0f0; /* Fondo suave para el contenedor */
+    border-radius: 15px; /* Bordes redondeados */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Sombra sutil para el contenedor */
+}
+
+@media (max-width: 991px) {
+
+    .video-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* Centrado horizontalmente */
+        align-items: center; /* Alineación vertical */
+        flex-wrap: wrap; /* Permite que los videos y la imagen se ajusten en pantallas pequeñas */
+        max-width: 100%; /* Limitar el tamaño del contenedor */
+        margin: 0 auto; /* Centrar el contenedor horizontalmente */
+        padding: 20px;
+        background-color: #f0f0f0; /* Fondo suave para el contenedor */
+        border-radius: 15px; /* Bordes redondeados */
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Sombra sutil para el contenedor */
+    }
+
+    .video-main {
+        display: flex;
+        flex-direction: column;
+        justify-content: center; /* Alineación horizontal centrada */
+        align-items: center; /* Alineación vertical centrada */
+        margin-top: 20px; /* Margen superior para espacio */
+        gap: 15px; /* Reducir la separación entre los elementos */
+        max-width: 80%; /* Limitar el ancho máximo del contenedor */
+        padding: 20px;
+        margin-left: auto; /* Centrando horizontalmente */
+        margin-right: auto; /* Centrando horizontalmente */
+    }
+
+
+}
+
+
+  
+
+
+
+
