@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tu Mejor Isapre</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'app/style.css' %}">
+    <script>
+
+        //obtención de la api de UF. Se define el nombre de la constante con UF_API_URL
+        const UF_API_URL = "https://mindicador.cl/api";
+
+        //función encargada de la obtención del valor UF
+        async function obtenerValorUF() {
+            try {
+                const response = await fetch(UF_API_URL);
+                const data = await response.json();
+                const valorUF = data.uf.valor;
+                document.getElementById("valor-uf").value = valorUF.toFixed(2);  // Asignar el valor de la UF al campo oculto
+                document.getElementById("mostrar-uf").innerText = `Valor UF actual: ${valorUF.toLocaleString("es-CL", { minimumFractionDigits: 2 })}`;
+            } catch (error) {
+                console.error("Error al obtener el valor de la UF:", error);
+                alert("No se pudo obtener el valor de la UF. Inténtelo nuevamente más tarde.");
+            }
+        }
+
+        // Mostrar campos de cargas según el número de cargas ingresado
+        function mostrarCamposCargas() {
+            const numCargas = parseInt(document.getElementById("num-cargas").value);
+            const contenedorCargas = document.getElementById("contenedor-cargas");
+            contenedorCargas.innerHTML = ''; 
+
+            for (let i = 1; i <= numCargas; i++) {
+                const label = document.createElement('label');
+                label.innerText = `Fecha de nacimiento de la carga ${i}: `;
+
+                const input = document.createElement('input');
+                input.type = 'date';
+                input.className = 'edad-carga';
+                input.name = `fecha_nacimiento_carga_${i}`;
+                input.required = true;
+
+                contenedorCargas.appendChild(label);
+                contenedorCargas.appendChild(input);
+                contenedorCargas.appendChild(document.createElement('br'));
+            }
+        }
+
+        //Declaración de valores de PB y GES de cada isapre correspondientes para luego hacer el calculo de Isapre.
+        function obtenerValoresIsapre(isapre) {
+            const valores = {
+                "Banmédica": { pb: 1.77, ges: 0.83 },
+                "Consalud": { pb: 1.88, ges: 1.39 },
+                "Nueva Mas Vida": { pb: 1.44, ges: 1.29 },
+                "Vida Tres": { pb: 1.94, ges: 0.85 },
+                "Esencial": { pb: 2.50, ges: 0.80 },
+                "Colmena": { pb: 1.50, ges: 0.93 }
+            };
+            return valores[isapre] || { pb: 0, ges: 0 };
+        }
+
+        //Función mas importante del proceso. Función que en primera instancia obtiene los datos del formulario posterior para calcular 
+        //dependiendo de los valores que entrega el usuario. 
+        function calcularCostoTotal(isapreSeleccionada) {
+            const valoresIsapres = ["Banmédica", "Consalud", "Nueva Mas Vida", "Vida Tres", "Esencial", "Colmena"];
+            const cambioPreferente = document.getElementById("cambio-preferente").value;
+            const edadCotizante = calcularEdad(document.getElementById("fecha-nacimiento").value);
+            const numeroCargas = parseInt(document.getElementById("num-cargas").value);
+            const valorUF = parseFloat(document.getElementById("valor-uf").value);
+            const rentaImponible = parseFloat(document.getElementById("renta-imponible").value);
+
+
+            //Constante definida dentro de una lista con los valores de cada usuario dependiendo de su edad
+            const tablaFactores = [
+                { min: 0, max: 1, titular: 0, carga: 0 },
+                { min: 2, max: 19, titular: 0.6, carga: 0.6 },
+                { min: 20, max: 24, titular: 0.9, carga: 0.7 },
+                { min: 25, max: 34, titular: 1.0, carga: 0.7 },
+                { min: 35, max: 44, titular: 1.3, carga: 0.9 },
+                { min: 45, max: 54, titular: 1.4, carga: 1.0 },
+                { min: 55, max: 64, titular: 2.0, carga: 1.4 },
+                { min: 65, max: 100, titular: 2.4, carga: 2.2 }
+            ];
+
+            //Función que define el factor de cada titular
+            function obtenerFactor(edad, esTitular) {
+                for (let i = 0; i < tablaFactores.length; i++) {
+                    if (edad >= tablaFactores[i].min && edad <= tablaFactores[i].max) {
+                        return esTitular ? tablaFactores[i].titular : tablaFactores[i].carga;
+                    }
+                }
+                return 0;
+            }
+
+            //Se obtiene en primer lugar el factor del cotizante indicando que es titular con true
+            //En segundo lugar se define sumaFactoresCargas para la acumulación de valores de factor de riesgo
+            //de cada carga
+            //En tercer lugar se define las edades de cada carga desde el formulario que el usuario tiene que rellenar
+            //se espera que represente la edad de cada carga
+            const factorCotizante = obtenerFactor(edadCotizante, true);
+            let sumaFactoresCargas = 0;
+            const edadesCargas = document.getElementsByClassName("edad-carga");
+
+
+            //Ciclo que calcula cada factor de carga. Se define la edad de cada carga con la
+            //constante edadesCarga y se obtiene el factor con la función calcularEdad.
+            //En el momento que se obtiene el valor de la carga se acumula en sumaFactoresCarga
+            //El valor finalmente es calculado con obtenerFactor e indica que es carga con false.
+            for (let i = 0; i < edadesCargas.length; i++) {
+                const edadCarga = calcularEdad(edadesCargas[i].value);
+                sumaFactoresCargas += obtenerFactor(edadCarga, false);
+            }
+
+            //Aqui se busca la opción mas economica de cada usuario.
+            //menorCosto se define con Infinity para garantizar que cualquier costo calculado será menor y actualizará esta variable.
+            let resultadoFinal = 0;
+            if (cambioPreferente === "Más económica según perfil y edad") {
+                let menorCosto = Infinity;
+                let mejorIsapre = "";
+            //Se itera con valoresIsapres (la lista de cada isapre) para obtener los datos definidos anteriormente.
+            //pb y ges son variables definidas anteriormente en una lista de valores obtenidas desde obtenerValoresIsapre.
+            //Se hace el calculo definido en reuniones anteriores
+                valoresIsapres.forEach((isapre) => {
+                    const { pb: pbIsapre, ges: gesIsapre } = obtenerValoresIsapre(isapre);
+                    const costoBase = pbIsapre * (factorCotizante + sumaFactoresCargas);
+                    const totalBeneficiarios = numeroCargas + 1;
+                    const costoGES = gesIsapre * totalBeneficiarios;
+                    const costoTotalUF = costoBase + costoGES;
+                    const costoTotalCLP = costoTotalUF * valorUF;
+                    //Si costoTotalCLP es menor que menorCosto se actualiza la variable y registra
+                    //la variable mejorIsapre.
+                    if (costoTotalCLP < menorCosto) {
+                        menorCosto = costoTotalCLP;
+                        mejorIsapre = isapre;
+                    }
+                });
+                //En este caso si se selecciona Más económica según perfil y edad se define resultadoFinal con menorCosto.
+                resultadoFinal = menorCosto;
+                document.getElementById("resultado-total").innerText = `La opción más económica es: ${mejorIsapre}, con un costo total de: ${Math.round(menorCosto).toLocaleString("es-CL")}`;
+            } else {
+                //En caso de que se seleccione otra opción se el mismo calculo sacando la comparación para conocer el menor costo.
+                const { pb: pbIsapre, ges: gesIsapre } = obtenerValoresIsapre(isapreSeleccionada || cambioPreferente);
+                const costoBase = pbIsapre * (factorCotizante + sumaFactoresCargas);
+                const totalBeneficiarios = numeroCargas + 1;
+                const costoGES = gesIsapre * totalBeneficiarios;
+                const costoTotalUF = costoBase + costoGES;
+                const costoTotalCLP = costoTotalUF * valorUF;
+                resultadoFinal = costoTotalCLP;
+
+                const porcentaje7Renta = rentaImponible * 0.07;
+                document.getElementById("resultado-7porciento").innerText = `El 7% de su renta imponible es: ${Math.round(porcentaje7Renta).toLocaleString("es-CL")}`;
+
+                document.getElementById("resultado-total").innerText = `El costo total es: ${Math.round(costoTotalCLP).toLocaleString("es-CL")}`;
+            }
+
+         
+            document.getElementById("resultado-final").value = resultadoFinal;
+        }
+
+        //función para validar el rut mediante calculos.
+        function validarRUT(rut) {
+
+            //En primer lugar hace una limpieza del rut para que se calcule sin signos que comunmente se ocupan en el ingreso de RUT.
+            const rutLimpio = rut.replace(/[.-]/g, '');
+            if (rutLimpio.length < 8) return false;
+            //Aqui se separa el rut en dos partes, los primeros 8 numeros en el cuerpo y luego el digito verificador.
+            const cuerpo = rutLimpio.slice(0, -1);
+            const digitoVerificador = rutLimpio.slice(-1).toUpperCase();
+            //Cada dígito del cuerpo se multiplica por un multiplicador (inicialmente 2) y se acumula en suma. 
+            //El multiplicador varía entre 2 y 7.
+            let suma = 0;
+            let multiplicador = 2;
+            for (let i = cuerpo.length - 1; i >= 0; i--) {
+                suma += parseInt(cuerpo[i]) * multiplicador;
+                multiplicador = multiplicador < 7 ? multiplicador + 1 : 2;
+            }
+            //El digito verificador se calcula usando la variable anterior de suma.
+            const dvCalculado = 11 - (suma % 11);
+            //Si el digito verficador da 11 se transforma a 0 y si da 10 se transforma a "K"
+            const dv = dvCalculado === 11 ? '0' : dvCalculado === 10 ? 'K' : dvCalculado.toString();
+            //Si el digito verificador es igual al que se ingresó es true.
+            return digitoVerificador === dv;
+        }
+
+        
+        function validarFormulario(event) {
+
+        //Se previene que el formulario se envie para realizar validaciones adicionales.
+        event.preventDefault(); 
+
+        //Se obtiene el rut que está en el formulario y se valida antes de enviarlo.
+        //Si el rut no es valido no se envia el rut y salta una alerta.
+        const rut = document.getElementById("rut").value;
+        if (!validarRUT(rut)) {
+            alert("RUT inválido. Por favor, ingresa un RUT válido.");
+            return false;
+        }
+
+        //Se llama a la función para calcular los datos entregados del formulario.
+        //Esto se hace antes de enviar los datos para asegurar que el dato está siendo enviado.
+        calcularCostoTotal();
+
+            //Se crea un objeto FormData con todos los datos ingresados en el formulario.
+            //Esto tiene todos los campos del formulario y los valores que se ingresaron
+            //respectivamente.
+            const formData = new FormData(document.getElementById("formulario"));
+
+            //Fetch envia los datos a la url definida "index".
+            fetch("{% url 'index' %}", {  
+                //Se utiliza POST para el envio, porque son datos nuevos.
+                method: "POST",
+                headers: {
+                    //Se envia el token CSRF extraido del formulario, que se usa en Django
+                    //para prevenir ataques CSRF
+                    "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    //X-Requested-With establece que XMLHttpRequest está utilizando AJAX para la solicitud.
+                    "X-Requested-With": "XMLHttpRequest"  
+                },
+                //body contiene todos los datos del formulario gracias a formData
+                body: formData
+            })
+
+            //Cuando el servidor responde a la solicitud, la respuesta se convierte en JSON.
+            .then(response => response.json())
+
+            //Aqui se verifica el resultado. Teniendo dos opciones. Si es true se da un mensaje de exito.
+            //Si es false se muestra que hubo un error en el envio de datos.
+            .then(data => {
+                if (data.success) {
+                    document.getElementById("mensaje-exito").innerText = data.message;
+                    document.getElementById("mensaje-exito").style.color = "green";
+                } else {
+                    document.getElementById("mensaje-exito").innerText = "Error en el envío de los datos.";
+                    document.getElementById("mensaje-exito").style.color = "red";
+                }
+            })
+
+            //Si ocurre algún error en la solicitud, se envia un mensaje en la consola.
+            //Además se le informa al usuario el error mediante un mensaje.
+            .catch(error => {
+                console.error("Error en el envío de datos:", error);
+                document.getElementById("mensaje-exito").innerText = "Error en el servidor. Inténtalo más tarde.";
+                document.getElementById("mensaje-exito").style.color = "red";
+            });
+
+            return false; 
+        }
+
+
+
+
+        
+        function calcularEdad(fechaNacimiento) {
+            //Aqui se define el dia y hora actual
+            const hoy = new Date();
+            //Aqui se crea un objeto de tipo date a partir de fechaNacimiento, que es un string en formato fecha.
+            const nacimiento = new Date(fechaNacimiento);
+            //Se resta el año de la fecha actual con la fecha de nacimiento.
+            let edadAnios = hoy.getFullYear() - nacimiento.getFullYear();
+            //Se calcula la diferencia de meses entre el mes actual y el mes de nacimiento.
+            let edadMeses = hoy.getMonth() - nacimiento.getMonth();
+            //Se verifiica si el dia es anteerior o posterior al mes actual y si es posterior, se verifica si es el dia posterior.
+            if (edadMeses < 0 || (edadMeses === 0 && hoy.getDate() < nacimiento.getDate())) {
+                //En cualquiera de los casos, si es incorrecto (porque todavia no se cumple años este año)
+                //Se le resta un año al calculo.
+                edadAnios--;
+                //o se ajusta a edadMeses agregandole 12 para tener un valor correcto en meses.
+                edadMeses += 12;
+            }
+            //Esta condición corresponde a las edades menores a un año. Si tiene menos de 1 año.
+            //Se devuelve edadMeses en vez de años.
+            if (edadAnios === 0) {
+                return edadMeses; 
+            }
+
+            return edadAnios;
+        }
+        
+
+
+        //Se indica que una vez que la pagina esté cargada, se llamara a la función obtenerValorUF para
+        //obtener el valor de la UF y mostrarlo en el formulario.
+        window.onload = obtenerValorUF;
+
+
+    </script>
+
+
+</head>
+<body>
+    
+    <header class="headerrr">
+        <div class="menu container">
+            <a href=# class="logo">
+                <img src="{% static 'app/images/corazon.png'%}" alt="Logo">
+            </a>
+
+            <input type="checkbox" id="menu" />
+            <label for="menu">
+                <img src="{% static 'app/images/menu.svg'%}" class="menu-icono" alt="Menú Icono">
+            </label>
+
+          
+            <nav class="navbar">
+                <ul>
+                    <li><a href="{% url 'index' %}">Inicio</a></li>
+                    <li><a href="{% url 'servicios' %}">Servicios</a></li>
+                    {% if user.is_authenticated %}
+                    <li><a href="{% url 'mostrar_datos_formularios' %}">Datos de formularios</a></li>
+                    {% else %}
+                    {% endif %}
+
+                </ul>
+            </nav>
+            {% if user.is_authenticated %}
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit">Cerrar sesión</button>
+                </form>
+            {% endif %}
+            
+        </div>
+
+       
+        <div class="header-content container">
+            <div class="header-txt">
+                <h1>¡Infórmate antes de tomar decisiones!</h1>
+            </div>
+
+          
+            <div class="header-img">
+                <img src="{% static 'app/images/medico.png'%}" alt="Médico">
+            </div>
+
+        </div>
+
+    </header>
+
+
+  
+    <section class="abouttt">
+        <div class="about-content container">
+            
+           
+            <img class="ab3" src="{% static 'app/images/b.png' %}" alt="Decoración">
+            
+          
+            <div class="about-img2">
+                <img class="ab4" src="{% static 'app/images/signopregunta.png' %}" alt="Signo de Pregunta">
+            </div>
+
+           
+            <div class="about-txt">
+                <h3>¡TE INFORMAMOS QUE ANTES DE ELEGIR LA INSTITUCION DE SALUD, ES IMPORTANTE CONSIDERAR ESTOS FACTORES CLAVES, PARA OBTENER TU PLAN MAS ADECUADO!</h3>
+                <h3>
+                    ¿Qué debes evaluar en tu plan de salud de Isapre actual?:
+                </h3>
+                <ul>
+                    <li>1- Evalúa tus necesidades de salud: Conoce tu plan actual de salud ¿tu plan de salud cubre en las clínicas y centros médicos que realmente frecuentas? Considera que un plan de salud se va encareciendo, si tiene coberturas con prestadores que para ti no son relevantes.</li>
+                    <br>
+                    <li>2- Elección de tu plan y coberturas: ¿Plan Preferente o Libre elección? De acuerdo con tu necesidad y si la Isapre cuenta con las coberturas en consultas médicas, exámenes, hospitalizaciones y tratamientos que requieres, es la mejor opción</li>
+                    <br>
+                    <li>3- Revisa costos: Analiza la relación entre el precio del plan y los beneficios que ofrece el mercado. Asegúrate de que el plan se ajuste a tu presupuesto y cobertura.</li>
+                    <br>
+                    <li>4- Considera las Condiciones y restricciones: ¿Cuentas con Seguro Complementario? Asegúrate de entender bien los topes en coberturas y copagos finales de ciertas prestaciones. Si tu cotización es derivada a Fonasa y cuentas con seguro complementario de forma particular, la cobertura hospitalaria es baja en clínicas.
+                        Siguiendo estos pasos, ya estarás preparado para elegir tu plan de salud que más se ajusta a tu medida y la de tu familia. Por esta misma razón, te invitamos a contactarnos, completando formulario con datos mínimos y permitirnos brindar vuestra ayuda.</li>
+                    <br>
+                </ul>
+
+                 <br>
+                <h3>
+                    Siguiendo estos pasos, estarás mejor preparado para elegir el plan de salud que más se ajusta a tus necesidades y las de tu familia. Por esta misma razón, te invitamos a contactarnos para brindarte toda la ayuda necesaria.
+                </h3>
+                
+                <div class="header-img">
+                    <img src="{% static 'app/images/informate.png' %}" alt="Infórmate">
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+
+      
+        <section class="form-section">
+            <div class="form-container container">
+                <h2>Formulario de Contacto</h2>
+                    <form method="POST" action="" id="formulario" onsubmit="return validarFormulario(event);">
+                    {% csrf_token %}
+    
+                   
+                    <label for="nombre-apellido">Nombre y Apellido:</label>
+                    <input type="text" id="nombre-apellido" name="nombre_apellido" required><br><br>
+
+                    <label for="rut">RUT(Sin puntos ni guión):</label>
+                    <input type="text" id="rut" name="rut" required><br><br>
+
+                    <label for="fecha-nacimiento">Fecha de Nacimiento:</label>
+                    <input type="date" id="fecha-nacimiento" name="fecha_nacimiento" required><br><br>
+
+                    <label for="renta-imponible">Renta Imponible:</label>
+                    <input type="number" id="renta-imponible" name="renta_imponible" required><br><br>
+
+                    <label for="num-cargas">Número de Cargas:</label>
+                    <input type="number" id="num-cargas" name="num_cargas" min="0" max="10" oninput="mostrarCamposCargas()" required><br><br>
+
+                    <div id="contenedor-cargas"></div><br>
+
+                    <label for="telefono">Teléfono:</label>
+                    <input type="tel" id="telefono" name="telefono" pattern="[0-9]{9}" required><br><br>
+
+                    <label for="correo">Correo Electrónico:</label>
+                    <input type="email" id="correo" name="correo" required><br><br>
+
+                    <label for="region">Región:</label>
+                    <select id="region" name="region" onchange="actualizarComunas()" required>
+                    <option value="">Seleccione una región</option>
+                    </select><br><br>
+
+                    <label for="comuna">Comuna:</label>
+                    <select id="comuna" name="comuna" required>
+                        <option value="">Seleccione una comuna</option>
+                    </select><br><br>
+
+                    <label for="prevision-actual">Previsión Actual:</label>
+                    <select id="prevision-actual" name="prevision_actual" required>
+                        <option value="Isapre">Isapre</option>
+                        <option value="Fonasa">Fonasa</option>
+                        <option value="Otro/Ninguno">Otro/Ninguno</option>
+                    </select><br><br>
+
+                    <label for="cambio-preferente">Cambio Preferente:</label>
+                    <select id="cambio-preferente" name="cambio_preferente" required>
+                        <option value="">Seleccione una opción</option>
+                        <option value="Más económica según perfil y edad">Más económica según perfil y edad</option>
+                        <option value="Consalud">Consalud</option>
+                        <option value="Nueva Mas Vida">Nueva Mas Vida</option>
+                        <option value="Vida Tres">Vida Tres</option>
+                        <option value="Esencial">Esencial</option>
+                        <option value="Colmena">Colmena</option>
+                        <option value="Banmédica">Banmédica</option>
+                    </select><br><br>
+
+                    
+                    <label for="monto-dispuesto">En caso de que el plan básico no se adapte a su renta, ¿Cuánto está dispuesto a pagar?</label>
+                    <input type="number" id="monto-dispuesto" name="monto_dispuesto" min="0" step="1" required><br><br>
+
+                    
+                    <p id="mostrar-uf"></p>
+                    <p id="resultado-7porciento"></p>
+                    <p id="resultado-total"></p>
+                    <p id="resultado"></p>
+
+                   
+                    <input type="hidden" id="valor-uf" name="valor_uf">
+                    <input type="hidden" id="resultado-final" name="resultado_final">
+
+                    <button type="submit">Enviar</button>
+                </form>
+                <br>
+                <p id="mensaje-exito"></p>
+            </div>
+        </section>
+
+        <script>
+            //Este evento se activa cuando todo el contenido HTML ha sido cargado y procesado. Aquí, la función interna se ejecuta al inicio, 
+            //garantizando que los elementos del DOM (como los selectores de región y comuna) estén listos para ser manipulados.
+            document.addEventListener("DOMContentLoaded", function () {
+                //Guarda referencias a los elementos <select> para región y comuna del formulario. Esto permite trabajar con ellos más adelante, agregando o eliminando opciones según la selección.
+                const regionSelect = document.getElementById("region");
+                const comunaSelect = document.getElementById("comuna");
+    
+                //Fetch permite que se hagan solicitudes HTTP de manera más simple, sin tener que recargar la pagina.
+                fetch('/api/regiones-comunas/')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error al obtener las regiones y comunas');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                     
+                        data.regiones.forEach(region => {
+                            const option = document.createElement("option");
+                            option.value = region.id;
+                            option.textContent = region.nombre;
+                            regionSelect.appendChild(option);
+                        });
+                    })
+                    .catch(error => console.error("Error al obtener regiones y comunas:", error));
+            });
+    
+            function actualizarComunas() {
+                //Se llama la id de la región seleccionando esa opción.
+                const regionId = document.getElementById("region").value;
+                //En cuanto se selecciona se actualiza el selector de comuna y se agregan las comunas correspondientes a la id.
+                const comunaSelect = document.getElementById("comuna");
+                comunaSelect.innerHTML = '<option value="">Seleccione una comuna</option>';
+    
+                //Vuelve a llamar a la API para obtener la lista completa de regiones y sus comunas.
+                fetch('/api/regiones-comunas/')
+                    .then(response => response.json())
+                    .then(data => {
+                        //Busca en data.regiones la región cuyo id coincide con regionId usando .find().
+                        const region = data.regiones.find(r => r.id == regionId);
+                        if (region) {
+                            //Si se encuentra la región seleccionada, se itera sobre sus comunas y se agrega cada comuna como opción al comunaSelect, estableciendo su com_id como value y su com_nombre como texto.
+                            region.comunas.forEach(comuna => {
+                                const option = document.createElement("option");
+                                option.value = comuna.com_id;
+                                option.textContent = comuna.com_nombre;
+                                comunaSelect.appendChild(option);
+                            });
+                        }
+                    })
+                    .catch(error => console.error("Error al actualizar comunas:", error));
+            }
+
+
+            document.getElementById("nombre-apellido").addEventListener("input", function (event) {
+        const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/; // Permite solo letras y espacios
+        if (!regex.test(event.target.value)) {
+            alert("El nombre solo puede contener letras y espacios.");
+            // Remueve los caracteres inválidos
+            event.target.value = event.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
+        }
+        });
+
+        </script>
+
+        
+
+        
+    
+
+        
+
+    <!-- Sección "Sobre Nosotros" -->
+    <section class="about">
+        <div class="about-content container">
+            <!-- Imagen decorativa -->
+            <img class="ab3" src="{% static 'app/images/b.png' %}" alt="Decoración">
+            <div class="about-img">
+                <img src="{% static 'app/images/familiaaaa.png' %}" alt="Familia">
+            </div>
+            <div class="about-txt">
+                <h2>¿Quienes Somos?</h2>
+                <h3>
+                    Somos un equipo que entrega asesorías de salud, trabajamos con varios ejecutivos de distintas Isapres del mercado y queremos brindar ayuda a personas en encontrar y escoger el mejor plan de acuerdo a lo que realmente necesiten.
+                </h3>
+
+            </div>
+        </div>
+    </section>
+
+
+    <div class="back-video">
+        <div class="video-main">
+            <video src="{% static 'app/videos/y2mate.com - Ley de Urgencia Vital_1080p.mp4' %}" controls></video>
+            <img src="{% static 'app/images/fondo2.png' %}" alt="Imagen entre videos">
+            <video src="{% static 'app/videos/y2mate.com - Cobertura Adicional para Enfermedades Catastroficas  CAEC_1080p.mp4' %}" controls></video>
+        </div>
+    </div>
+    
+
+
+
+    
+
+
+
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-links">
+
+                <!-- Enlaces rápidos -->
+                 
+
+
+
+                <div class="link">
+                    <ul>
+                        <li><a href="https://www.superdesalud.gob.cl/consultas/667/w3-propertyvalue-5014.html"target="_blank">Alzas de precio base de las Isapres</a></li>
+                        <br>
+                        <li><a href=" https://www.superdesalud.gob.cl/consultas/667/w3-propertyvalue-3464.html "target="_blank">Contrato de Salud</a></li>
+                        <br>
+                        <br>
+                        <li><a href=" https://www.superdesalud.gob.cl/consultas/667/w3-propertyvalue-3466.html "target="_blank">Cobertura y Bonificaciones</a></li>
+                        <br>
+                        <!-- Enlace de inicio de sesión -->
+                        <li><a href="{% url 'login' %}">Iniciar Sesión</a></li>
+                    </ul>
+                </div>
+
+                <div class="link">
+                    <ul>
+                        <li><a href="https://www.superdesalud.gob.cl/consultas/667/w3-propertyvalue-3467.html "target="_blank">Garantías explícitas en Salud GES</a></li>
+                        <br>
+                        <br>
+                        <li><a href="https://www.superdesalud.gob.cl/difusion/665/w3-article-21959.html "target="_blank">Explorador de precios exámenes de laboratorio e imagenología más frecuentes en Clínicas Privadas</a></li>
+                        <br>
+                        <li><a href="https://www.suseso.cl/miportal/615/w3-contents.html"target="_blank">Portal Suseso</a></li>
+                    </ul>
+                </div>
+
+ 
+
+                <div class="link">
+                    <ul>
+                        <div class="contact-links">
+                            <h3>Contactanos:</h3>
+                            
+                            <a href="#" class="logo-text">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" target="_blank" alt="Instagram Logo">
+                                Instagram
+                            </a>
+                        
+                            <a href="#" class="logo-text">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/e/ec/Circle-icons-mail.svg" target="_blank" alt="Correo Electrónico Logo">
+                                Correo Electrónico
+                            </a>
+                    
+                        </div>
+
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Derechos de autor -->
+            <div class="footer-copy">
+                <p>Sitios de Interés Superintendencia de Salud</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
+

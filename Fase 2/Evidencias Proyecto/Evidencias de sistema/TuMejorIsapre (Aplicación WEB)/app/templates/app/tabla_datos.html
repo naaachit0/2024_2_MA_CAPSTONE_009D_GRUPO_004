@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datos de Formularios</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #0056b3;
+        }
+
+        .navbar {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .navbar li {
+            display: inline;
+            margin: 0 10px;
+            font-size: 14px;
+        }
+
+        .navbar a {
+            color: #0056b3;
+            text-decoration: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 12px;
+        }
+
+        th, td {
+            padding: 5px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+
+        th {
+            background-color: #0056b3;
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        .btn {
+            padding: 5px 10px;
+            font-size: 12px;
+            color: #fff;
+            background-color: #0056b3;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #004494;
+        }
+
+        .btn-copiar {
+            background-color: #0062cc;
+        }
+
+        .btn-asignar {
+            background-color: #28a745;
+        }
+
+        .btn-eliminar {
+            background-color: #dc3545;
+        }
+
+        .pagination {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .pagination a {
+            margin: 0 5px;
+            padding: 5px 10px;
+            color: #0056b3;
+            text-decoration: none;
+            border: 1px solid #e0e0e0;
+            border-radius: 3px;
+        }
+
+        .pagination a:hover, .pagination a.current {
+            background-color: #0056b3;
+            color: #ffffff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Datos Enviados en los Formularios</h1>
+
+    <nav class="navbar">
+        <ul>
+            <li><a href="{% url 'index' %}">Inicio</a></li>
+            <li><a href="{% url 'lista_asesores' %}">Registrar Nuevo Asesor</a></li>
+            <li><a href="{% url 'registro' %}">Registrar Administrador</a></li>
+        </ul>
+    </nav>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>RUT</th>
+                <th>Fecha de Nacimiento</th>
+                <th>Renta Imponible</th>
+                <th>Número de Cargas</th>
+                <th>Fechas de Nacimiento de Cargas</th>
+                <th>Teléfono</th>
+                <th>Correo</th>
+                <th>Región</th>
+                <th>Comuna</th>
+                <th>Previsión Actual</th>
+                <th>Cambio Preferente</th>
+                <th>Monto Dispuesto</th>
+                <th>Costo Total de Isapre</th>
+                <th>Copiar Datos</th>
+                <th>Asignar Asesor</th>
+                <th>Asesor Asignado</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for dato in datos %}
+            <tr id="dato-{{ dato.id }}">
+                <td>{{ dato.id }}</td>
+                <td>{{ dato.nombre_apellido }}</td>
+                <td>{{ dato.rut }}</td>
+                <td>{{ dato.fecha_nacimiento|date:"d/m/Y" }}</td>
+                <td>{{ dato.renta_imponible }}</td>
+                <td>{{ dato.num_cargas }}</td>
+                <td>
+                    {% for carga in dato.cargas.all %}
+                        {{ carga.fecha_nacimiento|date:"d/m/Y" }}<br>
+                    {% endfor %}
+                </td>
+                <td>{{ dato.telefono }}</td>
+                <td>{{ dato.correo }}</td>
+                <td>{{ dato.region }}</td>
+                <td>{{ dato.comuna }}</td>
+                <td>{{ dato.prevision_actual }}</td>
+                <td>{{ dato.cambio_preferente }}</td>
+                <td>{{ dato.monto_dispuesto }}</td>
+                <td>{{ dato.resultado_final }}</td>
+                <td><button class="btn btn-copiar" onclick="copiarDatos(this)">Copiar</button></td>
+                <td>
+                    <form method="POST" action="{% url 'mostrar_datos_formularios' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="formulario_id" value="{{ dato.id }}">
+                        <select name="asesor_id" required>
+                            <option value="">Selecciona un asesor</option>
+                            {% for asesor in asesores %}
+                                <option value="{{ asesor.id }}">{{ asesor.nombre }} {{ asesor.apellido }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-asignar">Asignar</button>
+                    </form>
+                </td>
+                <td>
+                    {% if dato.asesor %}
+                        {{ dato.asesor.nombre }} {{ dato.asesor.apellido }}
+                        <a href="https://wa.me/{{ dato.asesor.telefono|default_if_none:'' }}" target="_blank">
+                            Contactar
+                        </a>
+                    {% else %}
+                        Sin asesor
+                    {% endif %}
+                </td>
+                <td>
+                    <button class="btn btn-eliminar" onclick="eliminarFormulario('{{ dato.id }}')">Eliminar</button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="19">No hay datos disponibles.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        {% if datos.has_previous %}
+            <a href="?page=1">Primera</a>
+            <a href="?page={{ datos.previous_page_number }}">Anterior</a>
+        {% endif %}
+
+        <span>Página {{ datos.number }} de {{ datos.paginator.num_pages }}</span>
+
+        {% if datos.has_next %}
+            <a href="?page={{ datos.next_page_number }}">Siguiente</a>
+            <a href="?page={{ datos.paginator.num_pages }}">Última</a>
+        {% endif %}
+    </div>
+
+    <script>
+        function copiarDatos(button) {
+            const row = button.closest("tr");
+            const id = row.cells[0].textContent;
+            const nombre = row.cells[1].textContent;
+            const rut = row.cells[2].textContent;
+            const fechaNacimiento = row.cells[3].textContent;
+            const rentaImponible = row.cells[4].textContent;
+            const numCargas = row.cells[5].textContent;
+            const fechasCargas = row.cells[6].innerHTML.split("<br>").map(fecha => fecha.trim()).filter(Boolean).join(", ");
+            const telefono = row.cells[7].textContent;
+            const correo = row.cells[8].textContent;
+            const region = row.cells[9].textContent;
+            const comuna = row.cells[10].textContent;
+            const previsionActual = row.cells[11].textContent;
+            const cambioPreferente = row.cells[12].textContent;
+            const montoDispuesto = row.cells[13].textContent;
+            const renta = row.cells[14].textContent;
+
+            const texto = `
+                ID: ${id}
+                Nombre: ${nombre}
+                RUT: ${rut}
+                Fecha de Nacimiento: ${fechaNacimiento}
+                Renta Imponible: ${rentaImponible}
+                Número de Cargas: ${numCargas}
+                Fechas de Nacimiento de Cargas: ${fechasCargas}
+                Teléfono: ${telefono}
+                Correo: ${correo}
+                Región: ${region}
+                Comuna: ${comuna}
+                Previsión Actual: ${previsionActual}
+                Cambio Preferente: ${cambioPreferente}
+                Monto Dispuesto: ${montoDispuesto}
+                Costo total de ISAPRE: ${renta}
+            `;
+
+            navigator.clipboard.writeText(texto.trim())
+                .then(() => alert("Datos copiados al portapapeles"))
+                .catch(error => console.error("Error al copiar los datos:", error));
+        }
+
+        function eliminarFormulario(formularioId){
+            if (!confirm("¿Estás seguro de que quieres eliminar este formulario?")) return;
+    
+            fetch(`/eliminar_formulario/${formularioId}/`, {
+                method: "DELETE",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById(`dato-${formularioId}`).remove();
+                    alert("Formulario eliminado exitosamente");
+                } else {
+                    alert("Error al eliminar el formulario");
+                }
+            })
+            .catch(error => console.error("Error al eliminar el formulario:", error));
+        }   
+    </script>
+</body>
+</html>

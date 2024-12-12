@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicios - Tu Mejor Isapre</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'app/style.css' %}">
+</head>
+<body>
+    <!-- Header -->
+    <header class="headerr">
+        <div class="menu container">
+            <a href="{% url 'index' %}" class="logo">
+                <img src="{% static 'app/images/corazon.png' %}" alt="Logo">
+            </a>
+
+            <!-- Menú hamburguesa (mobile) -->
+            <input type="checkbox" id="menu" />
+            <label for="menu">
+                <img src="{% static 'app/images/menu.svg' %}" class="menu-icono" alt="Menú Icono">
+            </label>
+
+            <!-- Navegación principal -->
+            <nav class="navbar">
+                <ul>
+                    <li><a href="{% url 'index' %}">Inicio</a></li>
+                    <li><a href="{% url 'servicios' %}">Servicios</a></li>
+                </ul>
+                </ul>
+            </nav>
+
+        </div>
+
+        <!-- Contenido del Header -->
+        <div class="header-content container">
+            <div class="header-txt">
+                <h1>Nuestros Servicios</h1>
+                <p class="texto">
+                    Asesoramos sobre temas de salud considerando el mercado actual, de forma profesional, segura y gratuita. Queremos acompañarte en el proceso de búsqueda y ayudar a tomar una buena decisión en la elección del plan.
+Nos contactaremos por whatsapp o al teléfono que nos proporcione en el formulario
+¡Con nuestra asesoría, eliges tranquilidad en contar a futuro una atención médica privada y de mejor calidad!
+                </p>
+            </div>
+
+            <!-- Imagen del Header -->
+            <div class="header-img">
+                <img src="{% static 'app/images/servicios.png' %}" alt="Servicios">
+            </div>
+        </div>
+    </header>
+
+    <!-- Sección Sobre Nosotros -->
+    <section class="aboutt">
+        <div class="about-content container">
+            <!-- Imagen decorativa -->
+            <img class="ab3" src="{% static 'app/images/b.png' %}" alt="Decoración">
+            
+            <!-- Imagen adicional -->
+            <div class="about-img">
+                <img src="{% static 'app/images/logofamilia.png' %}" alt="Logo Familia">
+            </div>
+
+            <!-- Texto sobre la empresa -->
+            <div class="about-txt">
+                <h2 class="titulo">Sobre Nosotros</h2>
+                <p class="texto">
+                    Nuestro equipo de asesores y ejecutivos de las distintas Isapres, estamos enfocados en apoyar a personas que necesiten mejorar o que quieren optar a obtener coberturas en Clínicas de Salud Privada. Te acompañamos antes y después de este proceso.
+                </p>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

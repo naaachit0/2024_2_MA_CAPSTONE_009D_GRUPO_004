@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Asesores</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #0056b3;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 10px 0;
+            background-color: #0056b3;
+        }
+
+        .navbar li {
+            list-style: none;
+            display: inline;
+        }
+
+        .navbar a {
+            color: #0056b3;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        button[type="submit"] {
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #0069d9;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: #ffffff;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 4px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-group a, .btn-group button {
+            color: #0056b3;
+            text-decoration: none;
+            margin-left: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn-group a:hover, .btn-group button:hover {
+            color: #004085;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lista de Asesores</h1>
+    
+    <nav class="navbar">
+        <li><a href="{% url 'index' %}">Inicio</a></li>
+        <li><a href="{% url 'mostrar_datos_formularios' %}">Datos de Formulario</a></li>
+        <li><a href="{% url 'registro' %}">Registrar Administrador</a></li>
+    </nav>
+
+    <div class="container">
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Agregar Asesor</button>
+        </form>
+
+        <h2>Asesores Registrados</h2>
+        <ul id="asesores-list">
+            {% for asesor in asesores %}
+            <li id="asesor-{{ asesor.id }}">
+                ID Asesor - {{ asesor.asesor_id }} | Nombre y Apellido - {{ asesor.nombre }} {{ asesor.apellido }} | Teléfono: {{ asesor.telefono }}
+                <div class="btn-group">
+                    <a href="{% url 'editar_asesor' asesor.id %}">Editar</a>
+                    <button onclick="eliminarAsesor('{{ asesor.id }}')">Eliminar</button>
+            </li>
+            {% empty %}
+            <li>No hay asesores registrados.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <script>
+        function eliminarAsesor(asesorId) {
+            if (!confirm("¿Estás seguro de que quieres eliminar este asesor?")) return;
+    
+            fetch(`/eliminar_asesor/${asesorId}/`, {
+                method: "DELETE",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}",
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById(`asesor-${asesorId}`).remove();
+                    alert("Asesor eliminado exitosamente");
+                } else {
+                    alert("Error al eliminar el asesor");
+                }
+            })
+            .catch(error => console.error("Error al eliminar el asesor:", error));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Información - Tu Mejor Isapre</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'app/style.css' %}">
+</head>
+<body>
+    <!-- Header -->
+    <header class="headerrr">
+        <div class="menu container">
+            <a href="{% url 'index' %}" class="logo">
+                <img src="{% static 'app/images/corazon.png' %}" alt="Logo">
+            </a>
+
+            <!-- Menú hamburguesa (mobile) -->
+            <input type="checkbox" id="menu" />
+            <label for="menu">
+                <img src="{% static 'app/images/menu.svg' %}" class="menu-icono" alt="Menú Icono">
+            </label>
+
+            <!-- Navegación principal -->
+            <nav class="navbar">
+                <ul>
+                    <li><a href="{% url 'index' %}">Inicio</a></li>
+                    <li><a href="{% url 'informacion' %}">Información</a></li>
+                    <li><a href="{% url 'servicios' %}">Servicios</a></li>
+                </ul>
+            </nav>
+
+            <!-- Íconos de redes sociales -->
+            <div class="socials-1">
+                <a href="#"><img src="{% static 'app/images/r1.svg' %}" alt="Red 1"></a>
+                <a href="#"><img src="{% static 'app/images/r2.svg' %}" alt="Red 2"></a>
+            </div>
+        </div>
+
+        <!-- Contenido del Header -->
+        <div class="header-content container">
+            <div class="header-txt">
+                <h1>¡Infórmate antes de tomar decisiones!</h1>
+            </div>
+
+            <!-- Imagen principal del Header -->
+            <div class="header-img">
+                <img src="{% static 'app/images/medico.png' %}" alt="Médico">
+            </div>
+        </div>
+    </header>
+
+    <!-- Sección de información -->
+    <section class="abouttt">
+        <div class="about-content container">
+            <!-- Imagen decorativa -->
+            <img class="ab3" src="{% static 'app/images/b.png' %}" alt="Decoración">
+            
+            <!-- Imagen adicional -->
+            <div class="about-img2">
+                <img class="ab4" src="{% static 'app/images/signopregunta.png' %}" alt="Signo de Pregunta">
+            </div>
+
+            <!-- Texto informativo -->
+            <div class="about-txt">
+                <h2>¡Te informamos!</h2>
+                <h3>
+                    ¡TE INFORMAMOS QUE ANTES DE ELEGIR LA INSTITUCION DE SALUD, ES IMPORTANTE CONSIDERAR ESTOS FACTORES CLAVES, PARA OBTENER TU PLAN MAS ADECUADO!
+                </h3>
+                <a>¿Qué debes evaluar en tu plan de salud de Isapre actual?:</a>
+                <ul>
+                    <li>1- Evalúa tus necesidades de salud: Considera tu estado de salud actual, posibles enfermedades preexistentes y las necesidades de tu familia.</li>
+                    <br>
+                    <li>2- Compara planes y coberturas: No todas las Isapres ofrecen las mismas coberturas. Revisa los planes disponibles y asegúrate de que cubran lo que necesitas, desde consultas médicas hasta hospitalizaciones y tratamientos.</li>
+                    <br>
+                    <li>3- Revisa los costos: Analiza la relación entre el precio del plan y los beneficios que ofrece. Asegúrate de que el plan se ajuste a tu presupuesto sin sacrificar cobertura.</li>
+                    <br>
+                    <li>4- Acceso a redes de prestadores: Verifica qué clínicas, hospitales y centros médicos están asociados al plan que te interesa, y si están ubicados cerca de tu domicilio o trabajo.</li>
+                    <br>
+                    <li>5- Condiciones y restricciones: Asegúrate de entender bien los periodos de carencia, restricciones y copagos que puedan aplicar para ciertas prestaciones.</li>
+                </ul>
+
+                 <br>
+                <h3>
+                    Siguiendo estos pasos, estarás mejor preparado para elegir el plan de salud que más se ajusta a tus necesidades y las de tu familia. Por esta misma razón, te invitamos a contactarnos para brindarte toda la ayuda necesaria.
+                </h3>
+
+                <!-- Imagen adicional al final -->
+                <img src="{% static 'app/images/informate.png' %}" alt="Infórmate">
+            </div>
+        </div>
+    </section>
+</body>
+</html>

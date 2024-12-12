@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tu Mejor Isapre</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'app/style.css' %}">
+    
+</head>
+
+<body>
+    <!-- Header -->
+     
+    <header class="headerrr">
+        <div class="menu container">
+            <a href="index.html" class="logo">
+                <img src="{% static 'app/images/corazon.png' %}" alt="Logo">
+            </a>
+
+            <!-- Menú hamburguesa (mobile) -->
+            <input type="checkbox" id="menu" />
+            <label for="menu">
+                <img src="{% static 'app/images/menu.svg' %}" class="menu-icono" alt="Menú Icono">
+            </label>
+
+            <!-- Navegación principal -->
+            <nav class="navbar">
+                <ul>
+                    <li><a href="index.html">Inicio</a></li>
+                    <li><a href="servicios.html">Servicios</a></li>
+                </ul>
+            </nav>
+
+        </div>
+
+    </header>
+{% block contenido  %}
+{% endblock %}

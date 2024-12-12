@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Eliminar Formulario</title>
+</head>
+<body>
+    <h1>Eliminar Formulario</h1>
+    <p>¿Estás seguro de que deseas eliminar el formulario de {{ formulario.nombre_apellido }}?</p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit">Sí, eliminar</button>
+        <a href="{% url 'mostrar_datos_formularios' %}">Cancelar</a>
+    </form>
+</body>
+</html>
